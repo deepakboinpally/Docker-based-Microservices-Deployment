@@ -1,3 +1,124 @@
 Docker-Based DevOps Project Setup
+
 Step 1: Install Docker on Servers
 Install Docker on all three servers.
+yum install docker -y
+systemctl start docker
+systemctl status docker
+
+Create a Docker Swarm Cluster
+docker swarm init --advertise-addr <Server_IP>
+docker node ls
+
+Step 2: Write a Dockerfile
+Create a Dockerfile for an Apache web server.
+
+FROM ubuntu
+RUN apt-get update -y
+RUN apt-get install apache2 -y
+COPY index.html /var/www/html/
+CMD ["/usr/sbin/apachectl", "-D", "FOREGROUND"]
+
+Step 3: Install Jenkins (Master)
+Download and Install Jenkins on the master server.
+
+sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
+sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+amazon-linux-extras install java-openjdk11 -y 
+yum install git maven jenkins -y
+systemctl start jenkins.service
+systemctl status jenkins.service
+
+Step 4: Create Custom Docker Images and Push to DockerHub
+Write the Dockerfile for the custom image.
+
+FROM ubuntu
+RUN apt-get update -y
+RUN apt-get install apache2 -y
+COPY index.html /var/www/html/
+CMD ["/usr/sbin/apachectl", "-D", "FOREGROUND"]
+
+Jenkins Pipeline Script
+
+pipeline {
+    agent any 
+    
+    stages {
+        stage('checkout') {
+            steps {
+                git 'https://github.com/deepakboinpally/Docker-based-Microservices-Deployment.git'
+            }
+        }
+        stage('build') {
+            steps {
+                sh 'docker build -t $img .'
+            }
+        }
+        stage('tag') {
+            steps {
+                sh 'docker tag $img $repo'
+            }
+        }
+        stage('push') {
+            steps {
+                sh 'docker login -u <username> -p <password>'
+                sh 'docker push $repo'
+            }
+        }
+    }
+}
+
+Step 5: Set Permissions for Docker
+chmod 777 /var/run/docker.sock
+systemctl daemon-reload
+systemctl restart docker.service
+
+Step 6: Write Docker Compose File and Push to GitHub
+Create a docker-compose.yml file for multiple services.
+
+version: '3'
+services:
+  devops:
+    image: rahamshaik/devopsreponit:latest
+    ports:
+      - "80:80"
+    volumes:
+      - "devopsvol"
+    deploy:
+      replicas: 3
+
+  aws:
+    image: rahamshaik/awsreponit:latest
+    ports:
+      - "81:80"
+    volumes:
+      - "awsvol"
+    deploy:
+      replicas: 3
+
+  datascience:
+    image: rahamshaik/datasciencereponit:latest
+    ports:
+      - "82:80"
+    volumes:
+      - "datasciencevol"
+    deploy:
+      replicas: 3
+
+  azure:
+    image: rahamshaik/azurereponit:latest
+    ports:
+      - "83:80"
+    volumes:
+      - "azurevol"
+    deploy:
+      replicas: 3
+
+Push the Compose File to GitHub
+git add docker-compose.yml
+git commit -m "Add Docker Compose file"
+git push origin main
+
+Summary
+This project involves setting up a Docker-based environment with multiple servers, creating custom Docker images, 
+automating the build and push process using Jenkins, and managing multiple containers with Docker Compose and Docker Swarm.
