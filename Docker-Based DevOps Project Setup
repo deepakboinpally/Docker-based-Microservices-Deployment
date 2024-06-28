@@ -79,7 +79,7 @@ Create a docker-compose.yml file for multiple services.
 version: '3'
 services:
   devops:
-    image: rahamshaik/devopsreponit:latest
+    image: deepak/devopsreponit:latest
     ports:
       - "80:80"
     volumes:
@@ -88,7 +88,7 @@ services:
       replicas: 3
 
   aws:
-    image: rahamshaik/awsreponit:latest
+    image: deepak/awsreponit:latest
     ports:
       - "81:80"
     volumes:
@@ -97,7 +97,7 @@ services:
       replicas: 3
 
   datascience:
-    image: rahamshaik/datasciencereponit:latest
+    image: deepak/datasciencereponit:latest
     ports:
       - "82:80"
     volumes:
@@ -106,7 +106,7 @@ services:
       replicas: 3
 
   azure:
-    image: rahamshaik/azurereponit:latest
+    image: deepak/azurereponit:latest
     ports:
       - "83:80"
     volumes:
